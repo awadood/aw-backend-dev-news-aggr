@@ -10,9 +10,5 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
-});
-
-Route::get('/docs', function () {
-    return redirect('/swagger-ui');
+    return redirect('/api/documentation');
 });
