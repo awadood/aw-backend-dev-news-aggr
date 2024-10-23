@@ -6,9 +6,15 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | API Level Language Lines
+    | News Aggregator API Level Language Lines
     |--------------------------------------------------------------------------
     |
     */
+
+    'article' => [],
+
+    'preference' => [
+        'deleted' => 'Preferences deleted successfully.',
+    ],
 
 ];
