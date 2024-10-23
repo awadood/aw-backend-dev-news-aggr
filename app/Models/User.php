@@ -10,11 +10,16 @@ use Laravel\Sanctum\HasApiTokens;
 
 /**
  * @OA\Schema(
+ *     schema="User",
  *     title="User",
  *     description="User model",
  *     @OA\Xml(
  *         name="User"
- *     )
+ *     ),
+ *     @OA\Property(property="id", type="integer", example=1),
+ *     @OA\Property(property="name", type="string", example="John Doe"),
+ *     @OA\Property(property="email", type="string", format="email", example="john.doe@example.com"),
+ *     @OA\Property(property="password", type="string", format="password", example="password1234")
  * )
  */
 class User extends Authenticatable
@@ -26,9 +31,6 @@ class User extends Authenticatable
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
-     * @OA\Property(property="name", type="string", example="John Doe")
-     * @OA\Property(property="email", type="string", format="email", example="john.doe@example.com")
-     * @OA\Property(property="password", type="string", format="password", example="password1234")
      */
     protected $fillable = [
         'name',

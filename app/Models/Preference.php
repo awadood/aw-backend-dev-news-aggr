@@ -7,11 +7,17 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * @OA\Schema(
+ *     schema="Preference",
  *     title="Preference",
  *     description="Preference model",
  *     @OA\Xml(
  *         name="Preference"
- *     )
+ *     ),
+ *     @OA\Property(property="id", type="integer", example=1),
+ *     @OA\Property(property="user_id", type="integer", example=1),
+ *     @OA\Property(property="sources", type="string", example="BBC, CNN"),
+ *     @OA\Property(property="categories", type="string", example="Technology, Sports"),
+ *     @OA\Property(property="authors", type="string", example="John Doe, Jane Smith")
  * )
  */
 class Preference extends Model
@@ -22,10 +28,6 @@ class Preference extends Model
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
-     * @OA\Property(property="user_id", type="integer", example="1")
-     * @OA\Property(property="sources", type="string", example="BBC, CNN")
-     * @OA\Property(property="categories", type="string", example="Technology, Sports")
-     * @OA\Property(property="authors", type="string", example="John Doe, Jane Smith")
      */
     protected $fillable = [
         'user_id',
