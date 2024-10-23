@@ -141,7 +141,7 @@ class PreferenceController extends Controller
     public function destroy()
     {
         $user = Auth::user();
-        $user->preference()->delete();
+        $user->preferences()->delete();
 
         return response()->json(['message' => __('aggregator.preference.deleted')], 200);
     }

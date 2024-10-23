@@ -32,6 +32,7 @@ Route::post('/password/reset', [AuthController::class, 'resetPassword'])->name(R
 */
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/preferences', [PreferenceController::class, 'show'])->name(RouteNames::PREF_SHOW);
-    Route::post('/preferences', [PreferenceController::class, 'store'])->name(RouteNames::PREF_STORE);
+    Route::get('/preferences', [PreferenceController::class, 'index'])->name(RouteNames::PREF_SHOW);
+    Route::post('/preferences', [PreferenceController::class, 'storeOrUpdate'])->name(RouteNames::PREF_STORE);
+    Route::delete('/preferences', [PreferenceController::class, 'destroy'])->name(RouteNames::PREF_DESTROY); //TODO deletable
 });
