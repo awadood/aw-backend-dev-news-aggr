@@ -14,9 +14,11 @@ use Laravel\Sanctum\HasApiTokens;
  *     schema="User",
  *     title="User",
  *     description="User model",
+ *
  *     @OA\Xml(
  *         name="User"
  *     ),
+ *
  *     @OA\Property(property="id", type="integer", example=1),
  *     @OA\Property(property="name", type="string", example="John Doe"),
  *     @OA\Property(property="email", type="string", format="email", example="john.doe@example.com"),

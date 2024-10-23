@@ -10,9 +10,11 @@ use Illuminate\Database\Eloquent\Model;
  *     schema="Preference",
  *     title="Preference",
  *     description="Preference model",
+ *
  *     @OA\Xml(
  *         name="Preference"
  *     ),
+ *
  *     @OA\Property(property="id", type="integer", example=1),
  *     @OA\Property(property="user_id", type="integer", example=1),
  *     @OA\Property(property="sources", type="string", example="BBC, CNN"),

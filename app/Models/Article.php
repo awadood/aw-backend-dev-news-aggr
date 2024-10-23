@@ -10,9 +10,11 @@ use Illuminate\Database\Eloquent\Model;
  *     schema="Article",
  *     title="Article",
  *     description="Article model",
+ *
  *     @OA\Xml(
  *         name="Article"
  *     ),
+ *
  *     @OA\Property(property="id", type="integer", example=1),
  *     @OA\Property(property="title", type="string", example="Breaking News: Example"),
  *     @OA\Property(property="content", type="string", example="This is the content of the news article."),
