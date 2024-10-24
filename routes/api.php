@@ -1,6 +1,7 @@
 <?php
 
 use App\Constants\RouteNames;
+use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PreferenceController;
 use Illuminate\Support\Facades\Route;
@@ -23,6 +24,17 @@ Route::post('/password/reset', [AuthController::class, 'resetPassword'])->name(R
 |--------------------------------------------------------------------------
 |
 */
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/articles', [ArticleController::class, 'index'])->name(RouteNames::ARTICLE_INDEX);   //with pagination and filters
+    Route::get('/articles/{id}', [ArticleController::class, 'show'])->name(RouteNames::ARTICLE_SHOW);
+    Route::post('/articles', [ArticleController::class, 'store'])->name(RouteNames::ARTICLE_STORE);
+    Route::put('/articles/{id}', [ArticleController::class, 'update'])->name(RouteNames::ARTICLE_UPDATE);
+    Route::delete('/articles/{id}', [ArticleController::class, 'destroy'])->name(RouteNames::ARTICLE_DESTROY);
+
+    Route::get('/update-articles', [ArticleController::class, 'updateArticles'])->name(RouteNames::ARTICLE_SCHEDULAR);
+    Route::get('/personalized-feed', [ArticleController::class, 'personalizedFeed'])->name(RouteNames::ARTICLE_FEED);
+});
 
 /*
 |--------------------------------------------------------------------------
