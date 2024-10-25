@@ -4,5 +4,5 @@ namespace App\Services\Contracts;
 
 interface ArticleFetcher
 {
-    public function fetchAndTransform(): array;
+    public function fetchAndTransform(): iterable;
 }

@@ -2,8 +2,11 @@
 
 namespace App\Pipeline;
 
+use App\Exceptions\FetchFailedException;
 use App\Models\Article;
 use App\Services\Contracts\ArticleFetcher;
+use Exception;
+use Illuminate\Support\Facades\Log;
 
 class ArticleFetcherPipeline
 {
@@ -34,35 +37,22 @@ class ArticleFetcherPipeline
 
     /**
      * Executes the pipeline by processing each fetcher and saving the articles
-     * in batches to reduce memory usage. This approach prevents memory
-     * exhaustion by handling the articles in manageable chunks.
+     * one by one. Each article has multiple attributes, so create all the
+     * attributes at once for each article. Efficient insertion of articles is
+     * compromised for the accuracy of attributes.
      */
     public function execute(): void
     {
-        $batch = [];
         foreach ($this->fetchers as $fetcher) {
-            foreach ($fetcher->fetchAndTransform() as $article) {
-                $batch[] = [
-                    'title' => $article['title'],
-                    'content' => $article['content'],
-                    'source' => $article['source'],
-                    'author' => $article['author'],
-                    'published_at' => $article['published_at'],
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ];
-
-                // If batch size is reached, save to database and reset batch
-                if (count($batch) >= config('articles.batch_size')) {
-                    Article::insert($batch);
-                    $batch = []; // Reset the batch
+            try {
+                foreach ($fetcher->fetchAndTransform() as $article) {
+                    /** @var Article $model */
+                    $model = Article::create($article);
+                    $model->attributes()->createMany($article['attributes']);
                 }
+            } catch (Exception $ex) {
+                Log::error($ex);
             }
-        }
-
-        // Save any remaining articles in the batch
-        if (! empty($batch)) {
-            Article::insert($batch);
         }
     }
 }
