@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Exceptions\FetchFailedException;
 use App\Services\Contracts\ArticleFetcher;
+use Carbon\Carbon;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 
 /**
@@ -16,6 +18,11 @@ use Illuminate\Support\Facades\Http;
  */
 class NewsAPIFetcher implements ArticleFetcher
 {
+    /**
+     * Timeout for invoking the newsapi.org API.
+     */
+    private const TIMEOUT = 10;
+
     /**
      * The API endpoint to fetch news articles from NewsAPI.
      */
@@ -32,35 +39,42 @@ class NewsAPIFetcher implements ArticleFetcher
 
     /**
      * Fetch and transform news articles from NewsAPI.
+     *
+     * @return iterable an array containing data for article and its attributes.
      */
     public function fetchAndTransform(): iterable
     {
-        $response = Http::get($this->apiUrl, $this->queryParameters);
+        try {
+            $response = Http::timeout(static::TIMEOUT)->get($this->apiUrl, $this->queryParameters);
 
-        if ($response->successful()) {
-            $articles = $response->json()['articles'];
+            if ($response->successful()) {
+                $articles = $response->json()['articles'];
 
-            foreach ($articles as $article) {
-                $modelData = [
-                    'title' => $article['title'],
-                    'url' => $article['url'],
-                    'description' => $article['description'],
-                    'attributes' => [
-                        ['name' => 'date', 'value' => $article['publishedAt']],
-                        ['name' => 'category', 'value' => 'business'],
-                        ['name' => 'source', 'value' => $article['source']['name']],
-                        ['name' => 'author', 'value' => $article['author']],
-                    ],
-                ];
+                foreach ($articles as $article) {
+                    $modelData = [
+                        'title' => $article['title'],
+                        'url' => $article['url'],
+                        'description' => $article['description'],
+                        'attributes' => [
+                            ['name' => 'date', 'value' => Carbon::parse($article['publishedAt'])->toDateTimeString()],
+                            ['name' => 'category', 'value' => 'business'],
+                            ['name' => 'source', 'value' => $article['source']['name']],
+                            ['name' => 'author', 'value' => $article['author']],
+                        ],
+                    ];
 
-                $modelData['attributes'] = collect($modelData['attributes'])->filter(function (array $attrib) {
-                    return $attrib['value'] != null;
-                })->all();
+                    // Exclude all the attributes if the value is null.
+                    $modelData['attributes'] = collect($modelData['attributes'])
+                        ->filter(fn (array $attrib) => $attrib['value'] != null)
+                        ->all();
 
-                yield $modelData;
+                    yield $modelData;
+                }
+            } else {
+                throw new FetchFailedException('Failed to fetch data from NewsAPI: '.$response->body());
             }
-        } else {
-            throw new FetchFailedException('Failed to fetch data from NewsAPI: '.$response->body());
+        } catch (RequestException $e) {
+            throw new FetchFailedException('Network error occurred while fetching data from NewsAPI: '.$e->getMessage());
         }
     }
 }
