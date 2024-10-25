@@ -39,4 +39,17 @@ return [
         App\Services\TheGuardianFetcher::class,
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Batch Size
+    |--------------------------------------------------------------------------
+    |
+    | Defines the maximum number of articles to accumulate before saving them
+    | to the database. Adjusting this value helps in optimizing memory usage
+    | and database performance.
+    |
+    */
+
+    'batch_size' => env('BATCH_SIZE', 100),
+
 ];
