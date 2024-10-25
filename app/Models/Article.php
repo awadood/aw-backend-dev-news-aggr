@@ -12,12 +12,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  *     type="object",
  *     title="Article",
  *     description="Article model",
- *     required={"title", "url", "content"},
+ *     required={"title", "url"},
  *
  *     @OA\Property(property="id", type="integer", readOnly=true, description="The unique identifier of the article"),
  *     @OA\Property(property="title", type="string", description="The title of the article"),
  *     @OA\Property(property="url", type="string", description="The URL of the article"),
- *     @OA\Property(property="content", type="string", description="The content of the article"),
+ *     @OA\Property(property="description", type="string", description="The brief description or excerpt of the article"),
  *     @OA\Property(property="created_at", type="string", format="date-time", readOnly=true, description="The creation timestamp of the article"),
  *     @OA\Property(property="updated_at", type="string", format="date-time", readOnly=true, description="The update timestamp of the article")
  * )

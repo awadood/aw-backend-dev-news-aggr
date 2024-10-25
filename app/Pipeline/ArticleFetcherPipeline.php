@@ -2,7 +2,6 @@
 
 namespace App\Pipeline;
 
-use App\Exceptions\FetchFailedException;
 use App\Models\Article;
 use App\Services\Contracts\ArticleFetcher;
 use Exception;

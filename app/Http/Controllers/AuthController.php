@@ -15,12 +15,6 @@ use Illuminate\Validation\ValidationException;
  *
  * This controller handles user authentication, including registration,
  * login, logout, and password reset operations.
- *
- * @OA\Info(
- *     title="Authentication API",
- *     version="1.0.0",
- *     description="API documentation for operations of user registration, login, logout, and password reset"
- * )
  */
 class AuthController extends Controller
 {

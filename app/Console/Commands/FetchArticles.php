@@ -41,6 +41,6 @@ class FetchArticles extends Command
         // Execute the pipeline to fetch and store articles
         $pipeline->execute();
 
-        Log::info('Articles have been successfully fetched and updated.');
+        Log::info('The pipeline of fetchers has been executed.');
     }
 }

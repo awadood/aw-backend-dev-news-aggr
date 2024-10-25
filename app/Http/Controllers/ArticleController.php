@@ -11,12 +11,6 @@ use Illuminate\Support\Facades\Auth;
  *
  * This controller handles the management of articles, including retrieving, creating,
  * updating, deleting articles, and providing personalized article feeds for users.
- *
- * @OA\Info(
- *     title="Article API",
- *     version="1.0.0",
- *     description="API documentation for article management including retrieval, creation, update, deletion, and personalized feed"
- * )
  */
 class ArticleController extends Controller
 {

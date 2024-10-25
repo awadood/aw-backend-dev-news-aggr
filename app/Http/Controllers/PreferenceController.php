@@ -11,12 +11,6 @@ use Illuminate\Support\Facades\Auth;
  *
  * This controller handles user preferences, allowing users to create, update, view, and delete
  * their preferences for news sources, categories, and authors.
- *
- * @OA\Info(
- *     title="Preference API",
- *     version="1.0.0",
- *     description="API documentation for user preferences operations including creation, update, retrieval, and deletion"
- * )
  */
 class PreferenceController extends Controller
 {

@@ -60,7 +60,7 @@ class NewsAPIFetcher implements ArticleFetcher
                 yield $modelData;
             }
         } else {
-            throw new FetchFailedException('Failed to fetch data from NewsAPI: ' . $response->body());
+            throw new FetchFailedException('Failed to fetch data from NewsAPI: '.$response->body());
         }
     }
 }
