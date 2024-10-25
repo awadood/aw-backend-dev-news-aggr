@@ -19,6 +19,7 @@ return [
         'date',
         'category',
         'source',
+        'author',
     ],
 
     /*
