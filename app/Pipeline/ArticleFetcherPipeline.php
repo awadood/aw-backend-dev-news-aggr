@@ -3,21 +3,19 @@
 namespace App\Pipeline;
 
 use App\Models\Article;
-use App\Services\Contracts\NewsFetcher;
+use App\Services\Contracts\ArticleFetcher;
 
-class NewsFetcherPipeline
+class ArticleFetcherPipeline
 {
     /**
-     * The fetchers that fetches news data sources
-     *
-     * @var array<int, NewsFetcher>
+     * 
      */
     private array $fetchers = [];
 
     /**
      * 
      */
-    public function addFetcher(NewsFetcher $fetcher): NewsFetcherPipeline
+    public function addFetcher(ArticleFetcher $fetcher): ArticleFetcherPipeline
     {
         $this->fetchers[] = $fetcher;
 

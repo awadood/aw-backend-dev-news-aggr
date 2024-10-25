@@ -2,9 +2,9 @@
 
 namespace App\Services;
 
-use App\Services\Contracts\NewsFetcher;
+use App\Services\Contracts\ArticleFetcher;
 
-class NYTimesFetcher implements NewsFetcher
+class NYTimesFetcher implements ArticleFetcher
 {
     public function fetchAndTransform(): array
     {

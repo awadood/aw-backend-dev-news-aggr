@@ -2,7 +2,7 @@
 
 namespace App\Services\Contracts;
 
-interface NewsFetcher
+interface ArticleFetcher
 {
     public function fetchAndTransform(): array;
 }

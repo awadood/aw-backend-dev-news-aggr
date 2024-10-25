@@ -36,7 +36,7 @@ class ArticleControllerTest extends TestCase
         $article = Article::factory()->create(['user_id' => $user->id]);
 
         // Act
-        $response = $this->actingAs($user, 'sanctum')->getJson('/api/articles/' . $article->id);
+        $response = $this->actingAs($user, 'sanctum')->getJson('/api/articles/'.$article->id);
 
         // Assert
         $response->assertStatus(200)
@@ -86,7 +86,7 @@ class ArticleControllerTest extends TestCase
         ];
 
         // Act
-        $response = $this->actingAs($user, 'sanctum')->putJson('/api/articles/' . $article->id, $updatedData);
+        $response = $this->actingAs($user, 'sanctum')->putJson('/api/articles/'.$article->id, $updatedData);
 
         // Assert
         $response->assertStatus(200)
@@ -103,7 +103,7 @@ class ArticleControllerTest extends TestCase
         $article = Article::factory()->create(['user_id' => $user->id]);
 
         // Act
-        $response = $this->actingAs($user, 'sanctum')->deleteJson('/api/articles/' . $article->id);
+        $response = $this->actingAs($user, 'sanctum')->deleteJson('/api/articles/'.$article->id);
 
         // Assert
         $response->assertStatus(200)

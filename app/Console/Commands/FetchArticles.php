@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Factories\NewsFetcherFactory;
-use App\Pipeline\NewsFetcherPipeline;
+use App\Factories\ArticleFetcherFactory;
+use App\Pipeline\ArticleFetcherPipeline;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
@@ -30,10 +30,10 @@ class FetchArticles extends Command
     public function handle()
     {
         // Create fetchers using the factory
-        $fetchers = NewsFetcherFactory::getConfiguredFetchers();
+        $fetchers = ArticleFetcherFactory::getConfiguredFetchers();
 
         // Create a pipeline and add fetchers to it
-        $pipeline = App::make(NewsFetcherPipeline::class);
+        $pipeline = App::make(ArticleFetcherPipeline::class);
         foreach ($fetchers as $fetcher) {
             $pipeline->addFetcher($fetcher);
         }

@@ -2,13 +2,13 @@
 
 namespace App\Factories;
 
-use App\Services\Contracts\NewsFetcher;
+use App\Services\Contracts\ArticleFetcher;
 
-class NewsFetcherFactory
+class ArticleFetcherFactory
 {
     public static function getConfiguredFetchers(): array
     {
-        $config = config('articlas.fetchers', []);
+        $config = config('articles.fetchers', []);
         $fetchers = [];
 
         foreach ($config as $fetcherClass) {
@@ -16,7 +16,7 @@ class NewsFetcherFactory
             /** @var NewsFetch $fetcher */
             $fetcher = app()->make($fetcherClass);
 
-            if ($fetcher instanceof NewsFetcher) {
+            if ($fetcher instanceof ArticleFetcher) {
                 $fetchers[] = $fetcher;
             }
         }

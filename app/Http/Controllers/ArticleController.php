@@ -57,7 +57,7 @@ class ArticleController extends Controller
         $query = Article::query();
 
         if ($request->has('keyword')) {
-            $query->where('title', 'like', '%' . $request->input('keyword') . '%');
+            $query->where('title', 'like', '%'.$request->input('keyword').'%');
         }
         if ($request->has('category')) {
             $query->where('category', $request->input('category'));
