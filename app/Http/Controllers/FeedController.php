@@ -93,6 +93,6 @@ class FeedController extends Controller
         // Fetch personalized articles
         $articles = $articlesQuery->with('attributes')->get();
 
-        return response()->json($articles);
+        return response()->json(fractal($articles, new ArticleTransformer)->toArray());
     }
 }
