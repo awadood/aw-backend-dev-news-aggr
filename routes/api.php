@@ -27,11 +27,8 @@ Route::post('/password/reset', [AuthController::class, 'resetPassword'])->name(R
 */
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/articles', [ArticleController::class, 'index'])->name(RouteNames::ARTICLE_INDEX);   //with pagination and filters
+    Route::get('/articles', [ArticleController::class, 'index'])->name(RouteNames::ARTICLE_INDEX);
     Route::get('/articles/{id}', [ArticleController::class, 'show'])->name(RouteNames::ARTICLE_SHOW);
-    Route::post('/articles', [ArticleController::class, 'store'])->name(RouteNames::ARTICLE_STORE);
-    Route::put('/articles/{id}', [ArticleController::class, 'update'])->name(RouteNames::ARTICLE_UPDATE);
-    Route::delete('/articles/{id}', [ArticleController::class, 'destroy'])->name(RouteNames::ARTICLE_DESTROY);
 
     Route::get('/update-articles', [ArticleController::class, 'updateArticles'])->name(RouteNames::ARTICLE_SCHEDULAR);
     Route::get('/personalized-feed', [FeedController::class, 'personalizedFeed'])->name(RouteNames::ARTICLE_FEED);

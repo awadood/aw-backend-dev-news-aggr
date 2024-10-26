@@ -20,12 +20,6 @@ class RouteNames
 
     const ARTICLE_SHOW = 'articles.show';
 
-    const ARTICLE_STORE = 'articles.store';
-
-    const ARTICLE_UPDATE = 'articles.update';
-
-    const ARTICLE_DESTROY = 'articles.destroy';
-
     const ARTICLE_SCHEDULAR = 'articles.schedular';
 
     const ARTICLE_FEED = 'articles.feed';

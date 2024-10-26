@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Constants\RouteNames;
 use App\Models\Article;
 use App\Models\Attribute;
 use App\Models\Preference;
@@ -30,7 +31,7 @@ class FeedControllerTest extends TestCase
         Attribute::factory()->create(['article_id' => $article->id, 'name' => 'source', 'value' => 'TechCrunch']);
 
         $this->actingAs($user, 'sanctum')
-            ->getJson('/api/personalized-feed')
+            ->getJson(route(RouteNames::ARTICLE_FEED))
             ->assertStatus(200)
             ->assertJsonFragment(['title' => 'Tech Article']);
     }
@@ -49,7 +50,7 @@ class FeedControllerTest extends TestCase
         Attribute::factory()->create(['article_id' => $article->id, 'name' => 'category', 'value' => 'politics']);
 
         $this->actingAs($user, 'sanctum')
-            ->getJson('/api/personalized-feed')
+            ->getJson(route(RouteNames::ARTICLE_FEED))
             ->assertStatus(200)
             ->assertExactJson([]);
     }
@@ -57,7 +58,7 @@ class FeedControllerTest extends TestCase
     #[Test]
     public function cannot_retrieve_feed_when_not_authenticated(): void
     {
-        $this->getJson('/api/personalized-feed')
+        $this->getJson(route(RouteNames::ARTICLE_FEED))
             ->assertStatus(401)
             ->assertJson(['message' => 'Unauthenticated.']);
     }

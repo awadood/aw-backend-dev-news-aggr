@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\FetchArticlesRequest;
 use App\Models\Article;
-use Illuminate\Http\Request;
+use App\Transformers\ArticleTransformer;
+use Illuminate\Http\JsonResponse;
 
 /**
  * Class ArticleController
@@ -14,29 +16,69 @@ use Illuminate\Http\Request;
 class ArticleController extends Controller
 {
     /**
-     * Display a listing of articles with pagination and optional filters.
+     * Fetch articles with support for pagination and search functionality.
      *
-     * This method retrieves articles, with optional filters for keyword, date, category, and source.
+     * This endpoint allows users to retrieve a paginated list of articles. Users can also filter
+     * articles by keyword, date, category, or source using query parameters.
      *
-     * @param  Request  $request  The HTTP request object containing filter data.
-     * @return \Illuminate\Http\JsonResponse A JSON response containing a list of articles.
+     * @param  App\Http\Requests\FetchArticlesRequest  $request
      *
      * @OA\Get(
      *     path="/api/articles",
-     *     summary="Get a list of articles",
+     *     summary="Fetch paginated articles",
+     *     description="Retrieve a paginated list of articles with optional search filters for keyword, date, category, and source.",
+     *     operationId="getArticles",
      *     tags={"Articles"},
-     *     security={{"sanctum": {}}},
      *
-     *     @OA\Parameter(name="keyword", in="query", required=false, @OA\Schema(type="string")),
-     *     @OA\Parameter(name="category", in="query", required=false, @OA\Schema(type="string")),
-     *     @OA\Parameter(name="source", in="query", required=false, @OA\Schema(type="string")),
-     *     @OA\Parameter(name="date", in="query", required=false, @OA\Schema(type="string", format="date")),
+     *     @OA\Parameter(
+     *         name="keyword",
+     *         in="query",
+     *         description="Filter articles by keyword in the attributes",
+     *
+     *         @OA\Schema(type="string")
+     *     ),
+     *
+     *     @OA\Parameter(
+     *         name="date",
+     *         in="query",
+     *         description="Filter articles by date (YYYY-MM-DD)",
+     *
+     *         @OA\Schema(type="string", format="date")
+     *     ),
+     *
+     *     @OA\Parameter(
+     *         name="category",
+     *         in="query",
+     *         description="Filter articles by category",
+     *
+     *         @OA\Schema(type="string")
+     *     ),
+     *
+     *     @OA\Parameter(
+     *         name="source",
+     *         in="query",
+     *         description="Filter articles by source",
+     *
+     *         @OA\Schema(type="string")
+     *     ),
+     *
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="Page number for pagination",
+     *
+     *         @OA\Schema(type="integer")
+     *     ),
      *
      *     @OA\Response(
      *         response=200,
-     *         description="List of articles retrieved successfully",
+     *         description="Successful response with paginated articles",
      *
-     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Article"))
+     *         @OA\JsonContent(
+     *             type="array",
+     *
+     *             @OA\Items(ref="#/components/schemas/Article")
+     *         )
      *     ),
      *
      *     @OA\Response(
@@ -45,159 +87,70 @@ class ArticleController extends Controller
      *     )
      * )
      */
-    public function index(Request $request)
+    public function index(FetchArticlesRequest $request): JsonResponse
     {
-        $query = Article::query();
+        $query = Article::query()->with('attributes');
 
+        // Apply filters based on query parameters
         if ($request->has('keyword')) {
-            $query->where('title', 'like', '%'.$request->input('keyword').'%');
+            $keyword = $request->input('keyword');
+            $query->whereHas('attributes', function ($q) use ($keyword) {
+                $q->where('name', 'keyword')->where('value', 'like', "%$keyword%");
+            });
         }
-        if ($request->has('category')) {
-            $query->where('category', $request->input('category'));
-        }
-        if ($request->has('source')) {
-            $query->where('source', $request->input('source'));
-        }
+
         if ($request->has('date')) {
-            $query->whereDate('published_at', $request->input('date'));
+            $date = $request->input('date');
+            $query->whereHas('attributes', function ($q) use ($date) {
+                $q->where('name', 'date')->where('value', 'like', "$date%");
+            });
         }
 
-        $articles = $query->paginate(10);
+        if ($request->has('category')) {
+            $category = $request->input('category');
+            $query->whereHas('attributes', function ($q) use ($category) {
+                $q->where('name', 'category')->where('value', $category);
+            });
+        }
 
-        return response()->json($articles, 200);
+        if ($request->has('source')) {
+            $source = $request->input('source');
+            $query->whereHas('attributes', function ($q) use ($source) {
+                $q->where('name', 'source')->where('value', $source);
+            });
+        }
+
+        $articles = $query->paginate(config('articles.page_size'))
+            ->through(fn(Article $article, int $key) => fractal($article, new ArticleTransformer)->toArray());
+
+        return response()->json($articles);
     }
 
     /**
-     * Display a specific article.
+     * Retrieve details for a single article.
      *
-     * This method retrieves a specific article by its ID.
+     * This endpoint allows users to retrieve the details of a specific article by its ID.
      *
-     * @param  int  $id  The ID of the article to retrieve.
-     * @return \Illuminate\Http\JsonResponse A JSON response containing the article data.
      *
      * @OA\Get(
      *     path="/api/articles/{id}",
-     *     summary="Get an article by ID",
+     *     summary="Get single article details",
+     *     description="Retrieve the details of a specific article by its ID.",
+     *     operationId="getArticleById",
      *     tags={"Articles"},
-     *     security={{"sanctum": {}}},
      *
-     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
-     *
-     *     @OA\Response(
-     *         response=200,
-     *         description="Article retrieved successfully",
-     *
-     *         @OA\JsonContent(ref="#/components/schemas/Article")
-     *     ),
-     *
-     *     @OA\Response(
-     *         response=404,
-     *         description="Article not found"
-     *     )
-     * )
-     */
-    public function show($id)
-    {
-        $article = Article::find($id);
-
-        if (! $article) {
-            return response()->json(['message' => 'Article not found'], 404);
-        }
-
-        return response()->json($article, 200);
-    }
-
-    /**
-     * Store a newly created article.
-     *
-     * This method creates a new article for the authenticated user.
-     *
-     * @param  Request  $request  The HTTP request object containing article data.
-     * @return \Illuminate\Http\JsonResponse A JSON response containing the created article.
-     *
-     * @OA\Post(
-     *     path="/api/articles",
-     *     summary="Create a new article",
-     *     tags={"Articles"},
-     *     security={{"sanctum": {}}},
-     *
-     *     @OA\RequestBody(
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID of the article to retrieve",
      *         required=true,
      *
-     *         @OA\JsonContent(
-     *
-     *             @OA\Property(property="title", type="string", example="Breaking News: Example"),
-     *             @OA\Property(property="content", type="string", example="This is the content of the news article."),
-     *             @OA\Property(property="category", type="string", example="Technology"),
-     *             @OA\Property(property="source", type="string", example="BBC News"),
-     *             @OA\Property(property="author", type="string", example="Jane Doe"),
-     *             @OA\Property(property="published_at", type="string", format="date-time", example="2024-01-01T00:00:00Z")
-     *         )
-     *     ),
-     *
-     *     @OA\Response(
-     *         response=201,
-     *         description="Article created successfully",
-     *
-     *         @OA\JsonContent(ref="#/components/schemas/Article")
-     *     ),
-     *
-     *     @OA\Response(
-     *         response=401,
-     *         description="Unauthorized"
-     *     )
-     * )
-     */
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'content' => 'required|string',
-            'category' => 'required|string|max:255',
-            'source' => 'required|string|max:255',
-            'author' => 'required|string|max:255',
-            'published_at' => 'nullable|date',
-        ]);
-
-        $article = Article::create($validated);
-
-        return response()->json($article, 201);
-    }
-
-    /**
-     * Update an existing article.
-     *
-     * This method updates an existing article by its ID.
-     *
-     * @param  Request  $request  The HTTP request object containing article data.
-     * @param  int  $id  The ID of the article to update.
-     * @return \Illuminate\Http\JsonResponse A JSON response containing the updated article.
-     *
-     * @OA\Put(
-     *     path="/api/articles/{id}",
-     *     summary="Update an existing article",
-     *     tags={"Articles"},
-     *     security={{"sanctum": {}}},
-     *
-     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
-     *
-     *     @OA\RequestBody(
-     *         required=true,
-     *
-     *         @OA\JsonContent(
-     *
-     *             @OA\Property(property="title", type="string", example="Updated Title"),
-     *             @OA\Property(property="content", type="string", example="Updated content of the article."),
-     *             @OA\Property(property="category", type="string", example="Science"),
-     *             @OA\Property(property="source", type="string", example="Updated Source"),
-     *             @OA\Property(property="author", type="string", example="Updated Author"),
-     *             @OA\Property(property="published_at", type="string", format="date-time", example="2024-02-01T00:00:00Z")
-     *         )
+     *         @OA\Schema(type="integer")
      *     ),
      *
      *     @OA\Response(
      *         response=200,
-     *         description="Article updated successfully",
+     *         description="Successful response with article details",
      *
      *         @OA\JsonContent(ref="#/components/schemas/Article")
      *     ),
@@ -208,72 +161,14 @@ class ArticleController extends Controller
      *     )
      * )
      */
-    public function update(Request $request, $id)
+    public function show(int $id): JsonResponse
     {
-        $article = Article::find($id);
+        $article = Article::with('attributes')->find($id);
 
         if (! $article) {
-            return response()->json(['message' => 'Article not found'], 404);
+            return response()->json(['error' => 'Article not found.'], 404);
         }
 
-        $validated = $request->validate([
-            'title' => 'sometimes|required|string|max:255',
-            'content' => 'sometimes|required|string',
-            'category' => 'sometimes|required|string|max:255',
-            'source' => 'sometimes|required|string|max:255',
-            'author' => 'sometimes|required|string|max:255',
-            'published_at' => 'nullable|date',
-        ]);
-
-        $article->update($validated);
-
-        return response()->json($article, 200);
-    }
-
-    /**
-     * Remove an existing article.
-     *
-     * This method deletes an existing article by its ID.
-     * It first checks if the article exists and belongs to the authenticated user before performing the deletion.
-     * If the article does not exist, it returns a 404 response.
-     *
-     * @param  int  $id  The ID of the article to delete.
-     * @return \Illuminate\Http\JsonResponse A JSON response indicating the status of the deletion.
-     *
-     * @OA\Delete(
-     *     path="/api/articles/{id}",
-     *     summary="Delete an article",
-     *     tags={"Articles"},
-     *     security={{"sanctum": {}}},
-     *
-     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
-     *
-     *     @OA\Response(
-     *         response=200,
-     *         description="Article deleted successfully",
-     *
-     *         @OA\JsonContent(
-     *
-     *             @OA\Property(property="message", type="string", example="Article deleted successfully")
-     *         )
-     *     ),
-     *
-     *     @OA\Response(
-     *         response=404,
-     *         description="Article not found"
-     *     )
-     * )
-     */
-    public function destroy($id)
-    {
-        $article = Article::find($id);
-
-        if (! $article) {
-            return response()->json(['message' => 'Article not found'], 404);
-        }
-
-        $article->delete();
-
-        return response()->json(['message' => 'Article deleted successfully'], 200);
+        return response()->json(fractal($article, new ArticleTransformer));
     }
 }

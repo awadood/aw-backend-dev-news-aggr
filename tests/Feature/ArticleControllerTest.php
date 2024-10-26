@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Constants\RouteNames;
 use App\Models\Article;
+use App\Models\Attribute;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
@@ -14,125 +15,110 @@ class ArticleControllerTest extends TestCase
     use RefreshDatabase;
 
     #[Test]
-    public function user_can_view_all_articles()
+    public function can_fetch_paginated_articles(): void
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = User::factory()->create();
-        Article::factory()->count(5)->create(['user_id' => $user->id]);
+        $this->actingAs($user, 'sanctum');
+        Article::factory()->count(15)->create();
 
-        // Act
-        $response = $this->actingAs($user, 'sanctum')->getJson(route(RouteNames::ARTICLE_INDEX));
+        $response = $this->getJson(route(RouteNames::ARTICLE_INDEX).'?page=1');
 
-        // Assert
         $response->assertStatus(200)
-            ->assertJsonCount(5, 'data');
+            ->assertJsonStructure([
+                'current_page',
+                'data',
+                'links',
+                'per_page',
+                'total',
+            ])
+            ->assertJsonCount(10, 'data'); // Default pagination per page is 10
     }
 
-    /** @test */
-    public function user_can_view_a_single_article()
+    #[Test]
+    public function can_filter_articles_by_keyword(): void
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = User::factory()->create();
-        $article = Article::factory()->create(['user_id' => $user->id]);
+        $this->actingAs($user, 'sanctum');
+        $article = Article::factory()->create(['title' => 'Technology Today']);
+        Attribute::factory()->create(['article_id' => $article->id, 'name' => 'keyword', 'value' => 'technology']);
 
-        // Act
-        $response = $this->actingAs($user, 'sanctum')->getJson('/api/articles/'.$article->id);
+        $response = $this->getJson(route(RouteNames::ARTICLE_INDEX).'?keyword=technology');
 
-        // Assert
         $response->assertStatus(200)
-            ->assertJsonFragment([
-                'title' => $article->title,
-                'content' => $article->content,
-            ]);
+            ->assertJsonFragment(['title' => 'Technology Today']);
     }
 
-    /** @test */
-    public function user_can_create_an_article()
+    #[Test]
+    public function can_filter_articles_by_date(): void
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = User::factory()->create();
-        $articleData = [
-            'title' => 'New Article Title',
-            'content' => 'This is the content of the new article.',
-            'category' => 'Technology',
-            'source' => 'BBC',
-            'author' => 'John Doe',
-            'published_at' => now()->toDateTimeString(),
-        ];
+        $this->actingAs($user, 'sanctum');
+        $article = Article::factory()->create(['title' => 'Tech News']);
+        Attribute::factory()->create(['article_id' => $article->id, 'name' => 'date', 'value' => '2024-10-27 12:13:15']);
 
-        // Act
-        $response = $this->actingAs($user, 'sanctum')->postJson('/api/articles', $articleData);
+        $response = $this->getJson(route(RouteNames::ARTICLE_INDEX).'?date=2024-10-27');
 
-        // Assert
-        $response->assertStatus(201)
-            ->assertJsonFragment($articleData);
-
-        $this->assertDatabaseHas('articles', $articleData);
+        $response->assertStatus(200)
+            ->assertJsonFragment(['title' => 'Tech News']);
     }
 
-    /** @test */
-    public function user_can_update_an_article()
+    #[Test]
+    public function can_filter_articles_by_category(): void
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = User::factory()->create();
-        $article = Article::factory()->create(['user_id' => $user->id]);
-        $updatedData = [
-            'title' => 'Updated Article Title',
-            'content' => 'This is the updated content of the article.',
-            'category' => 'Health',
-            'source' => 'CNN',
-            'author' => 'Jane Doe',
-            'published_at' => now()->toDateTimeString(),
-        ];
+        $this->actingAs($user, 'sanctum');
+        $article = Article::factory()->create(['title' => 'Business News']);
+        Attribute::factory()->create(['article_id' => $article->id, 'name' => 'category', 'value' => 'business']);
 
-        // Act
-        $response = $this->actingAs($user, 'sanctum')->putJson('/api/articles/'.$article->id, $updatedData);
+        $response = $this->getJson(route(RouteNames::ARTICLE_INDEX).'?category=business');
 
-        // Assert
         $response->assertStatus(200)
-            ->assertJsonFragment($updatedData);
-
-        $this->assertDatabaseHas('articles', $updatedData);
+            ->assertJsonFragment(['title' => 'Business News']);
     }
 
-    /** @test */
-    public function user_can_delete_an_article()
+    #[Test]
+    public function can_filter_articles_by_source(): void
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = User::factory()->create();
-        $article = Article::factory()->create(['user_id' => $user->id]);
+        $this->actingAs($user, 'sanctum');
+        $article = Article::factory()->create(['title' => 'News from CNN']);
+        Attribute::factory()->create(['article_id' => $article->id, 'name' => 'source', 'value' => 'CNN']);
 
-        // Act
-        $response = $this->actingAs($user, 'sanctum')->deleteJson('/api/articles/'.$article->id);
+        $response = $this->getJson(route(RouteNames::ARTICLE_INDEX).'?source=CNN');
 
-        // Assert
         $response->assertStatus(200)
-            ->assertJson(['message' => 'Article deleted successfully']);
-
-        $this->assertDatabaseMissing('articles', ['id' => $article->id]);
+            ->assertJsonFragment(['title' => 'News from CNN']);
     }
 
-    /** @test */
-    public function user_can_get_personalized_feed()
+    #[Test]
+    public function can_fetch_single_article(): void
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = User::factory()->create();
-        $preferences = [
-            'categories' => 'Technology, Health',
-            'sources' => 'BBC, CNN',
-            'authors' => 'John Doe, Jane Smith',
-        ];
-        $user->preference()->create($preferences);
+        $this->actingAs($user, 'sanctum');
+        $article = Article::factory()->create(['title' => 'Breaking News']);
+        Attribute::factory()->create(['article_id' => $article->id, 'name' => 'category', 'value' => 'general']);
 
-        Article::factory()->create(['user_id' => $user->id, 'category' => 'Technology', 'source' => 'BBC', 'author' => 'John Doe']);
-        Article::factory()->create(['user_id' => $user->id, 'category' => 'Health', 'source' => 'CNN', 'author' => 'Jane Smith']);
-        Article::factory()->create(['user_id' => $user->id, 'category' => 'Politics', 'source' => 'Fox News', 'author' => 'Unrelated Author']);
+        $response = $this->getJson(route(RouteNames::ARTICLE_SHOW, $article->id));
 
-        // Act
-        $response = $this->actingAs($user, 'sanctum')->getJson('/api/personalized-feed');
-
-        // Assert
         $response->assertStatus(200)
-            ->assertJsonCount(2, 'data');
+            ->assertJsonFragment(['title' => 'Breaking News']);
+    }
+
+    #[Test]
+    public function cannot_fetch_non_existent_article(): void
+    {
+        /** @var User $user */
+        $user = User::factory()->create();
+        $this->actingAs($user, 'sanctum');
+        $response = $this->getJson(route(RouteNames::ARTICLE_SHOW, '999'));
+
+        $response->assertStatus(404)
+            ->assertJson(['error' => 'Article not found.']);
     }
 }
