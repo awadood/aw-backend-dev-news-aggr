@@ -14,10 +14,11 @@ return new class extends Migration
         Schema::create('preferences', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('sources');
-            $table->string('categories');
-            $table->string('authors');
+            $table->string('name');
+            $table->string('value');
             $table->timestamps();
+
+            $table->index(['user_id', 'name']);
         });
     }
 

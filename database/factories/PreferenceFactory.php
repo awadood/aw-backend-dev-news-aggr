@@ -24,9 +24,8 @@ class PreferenceFactory extends Factory
     {
         return [
             'user_id' => User::factory(),
-            'categories' => $this->faker->randomElement(['Technology, Health', 'Sports, Politics', 'Science, Entertainment']),
-            'sources' => $this->faker->randomElement(['BBC, CNN', 'Al Jazeera, Fox News', 'Reuters, AP']),
-            'authors' => $this->faker->name.', '.$this->faker->name,
+            'name' => $this->faker->randomElement(config('articles.attributes')),
+            'value' => $this->faker->word(),
         ];
     }
 }

@@ -24,7 +24,7 @@ class AttributeFactory extends Factory
     {
         return [
             'article_id' => Article::factory(),
-            'name' => $this->faker->word,
+            'name' => $this->faker->randomElement(config('articles.attributes')),
             'value' => $this->faker->word,
         ];
     }

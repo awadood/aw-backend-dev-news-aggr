@@ -17,9 +17,8 @@ use Illuminate\Database\Eloquent\Model;
  *
  *     @OA\Property(property="id", type="integer", example=1),
  *     @OA\Property(property="user_id", type="integer", example=1),
- *     @OA\Property(property="sources", type="string", example="BBC, CNN"),
- *     @OA\Property(property="categories", type="string", example="Technology, Sports"),
- *     @OA\Property(property="authors", type="string", example="John Doe, Jane Smith")
+ *     @OA\Property(property="name", type="string", example="category, source, author"),
+ *     @OA\Property(property="value", type="string", example="business, CNBC, Fred Imbert")\
  * )
  */
 class Preference extends Model
@@ -33,9 +32,8 @@ class Preference extends Model
      */
     protected $fillable = [
         'user_id',
-        'sources',
-        'categories',
-        'authors',
+        'name',
+        'value',
     ];
 
     /**

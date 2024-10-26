@@ -16,7 +16,7 @@ class ArticleWithAttributesSeeder extends Seeder
     public function run()
     {
         Article::factory()
-            ->count(10)
+            ->count(50)
             ->has(Attribute::factory()->count(3))
             ->create();
     }

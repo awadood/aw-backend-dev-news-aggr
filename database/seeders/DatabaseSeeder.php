@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -14,5 +13,6 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(ArticleWithAttributesSeeder::class);
         $this->call(UserSeeder::class);
+        $this->call(PreferenceSeeder::class);
     }
 }

@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Article;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 class ArticleFactory extends Factory
 {
@@ -22,6 +23,7 @@ class ArticleFactory extends Factory
     public function definition()
     {
         return [
+            'hash' => Str::uuid(),
             'title' => $this->faker->sentence,
             'url' => $this->faker->url,
             'description' => $this->faker->paragraph,
