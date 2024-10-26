@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  *     required={"title", "url"},
  *
  *     @OA\Property(property="id", type="integer", readOnly=true, description="The unique identifier of the article"),
+ *     @OA\Property(property="hash", type="string", description="a unique hash is generated for each article"),
  *     @OA\Property(property="title", type="string", description="The title of the article"),
  *     @OA\Property(property="url", type="string", description="The URL of the article"),
  *     @OA\Property(property="description", type="string", description="The brief description or excerpt of the article"),
@@ -32,6 +33,7 @@ class Article extends Model
      * @var array<int, string>
      */
     protected $fillable = [
+        'hash',
         'title',
         'url',
         'description',

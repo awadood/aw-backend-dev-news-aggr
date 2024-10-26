@@ -105,4 +105,16 @@ return [
 
     'prefix' => env('CACHE_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_cache_'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Cache TTL
+    |--------------------------------------------------------------------------
+    |
+    | Cache identifiers of fetched articles for the specified time in seconds.
+    | The default value is one week. i.e. 604800 = 60 * 60 * 24 * 7
+    |
+    */
+
+    'ttl' => env('CACHE_TTL', 60 * 60 * 24 * 7),
+
 ];

@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('value');
             $table->timestamps();
 
-            $table->index(['article_id', 'name']);
+            $table->index(['name', 'article_id']);
         });
     }
 
