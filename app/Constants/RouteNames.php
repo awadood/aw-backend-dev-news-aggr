@@ -16,8 +16,6 @@ class RouteNames
 
     const PREF_STORE = 'preferences.storeOrUpdate';
 
-    const PREF_DESTROY = 'preferences.destroy';
-
     const ARTICLE_INDEX = 'articles.index';
 
     const ARTICLE_SHOW = 'articles.show';

@@ -2,36 +2,51 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\PreferencesRequest;
 use App\Models\Preference;
-use Illuminate\Http\Request;
+use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 /**
- * Class PreferenceController
+ * PreferenceController handles user preferences based on attributes.
  *
- * This controller handles user preferences, allowing users to create, update, view, and delete
- * their preferences for news sources, categories, and authors.
+ * This controller provides endpoints for users to set and retrieve their preferred
+ * news settings, such as sources, categories, and authors, allowing the application
+ * to customize the user's news feed based on their interests.
  */
 class PreferenceController extends Controller
 {
     /**
-     * Display the user's preferences.
+     * Retrieve user preferences for articles.
      *
-     * This method retrieves the preferences for the authenticated user.
+     * This endpoint allows users to get their current preferences for articles.
      *
-     * @return \Illuminate\Http\JsonResponse A JSON response containing the user's preferences.
+     * @return \Illuminate\Http\JsonResponse A JSON response
      *
      * @OA\Get(
      *     path="/api/preferences",
-     *     summary="Get the user's preferences",
+     *     summary="Get user preferences",
+     *     description="Retrieve user preferences for news sources, categories, and authors.",
+     *     operationId="indexUserPreferences",
      *     tags={"Preferences"},
-     *     security={{"sanctum": {}}},
      *
      *     @OA\Response(
      *         response=200,
-     *         description="User preferences retrieved successfully",
+     *         description="Successful response with user preferences",
      *
-     *         @OA\JsonContent(ref="#/components/schemas/Preference")
+     *         @OA\JsonContent(
+     *             type="array",
+     *
+     *             @OA\Items(
+     *                 type="object",
+     *
+     *                 @OA\Property(property="name", type="string"),
+     *                 @OA\Property(property="value", type="string")
+     *             )
+     *         )
      *     ),
      *
      *     @OA\Response(
@@ -40,103 +55,93 @@ class PreferenceController extends Controller
      *     )
      * )
      */
-    public function index()
+    public function index(): JsonResponse
     {
         $user = Auth::user();
 
-        return response()->json($user->preferences, 200);
+        $preferences = Preference::where('user_id', $user->id)->get(['name', 'value']);
+
+        return response()->json($preferences);
     }
 
     /**
-     * Store or update the user's preferences.
+     * Set user preferences for articles.
      *
-     * This method creates or updates the preferences for the authenticated user.
+     * This endpoint allows users to set their preferences for articles.
      *
-     * @param  Request  $request  The HTTP request object containing preference data.
-     * @return \Illuminate\Http\JsonResponse A JSON response indicating the status of the operation.
+     * @param  App\Http\Requests\PreferencesRequest  $request  The form request.
+     * @return \Illuminate\Http\JsonResponse A JSON response
      *
      * @OA\Post(
      *     path="/api/preferences",
-     *     summary="Create or update the user's preferences",
+     *     summary="Store user preferences",
+     *     description="Create or update user preferences for user preferences",
+     *     operationId="storeUserPreferences",
      *     tags={"Preferences"},
-     *     security={{"sanctum": {}}},
      *
      *     @OA\RequestBody(
      *         required=true,
      *
      *         @OA\JsonContent(
+     *             type="object",
      *
-     *             @OA\Property(property="sources", type="string", example="BBC, CNN"),
-     *             @OA\Property(property="categories", type="string", example="Technology, Sports"),
-     *             @OA\Property(property="authors", type="string", example="John Doe, Jane Smith")
+     *             @OA\Property(property="preferences", type="array",
+     *
+     *                 @OA\Items(type="object",
+     *
+     *                     @OA\Property(property="name", type="string"),
+     *                     @OA\Property(property="value", type="string")
+     *                 )
+     *             )
      *         )
      *     ),
      *
      *     @OA\Response(
      *         response=200,
-     *         description="User preferences updated successfully",
-     *
-     *         @OA\JsonContent(ref="#/components/schemas/Preference")
-     *     ),
-     *
-     *     @OA\Response(
-     *         response=401,
-     *         description="Unauthorized"
-     *     )
-     * )
-     */
-    public function storeOrUpdate(Request $request)
-    {
-        $user = Auth::user();
-
-        $validated = $request->validate([
-            'sources' => 'nullable|string',
-            'categories' => 'nullable|string',
-            'authors' => 'nullable|string',
-        ]);
-
-        $preference = Preference::updateOrCreate(
-            ['user_id' => $user->id],
-            $validated
-        );
-
-        return response()->json($preference, 200);
-    }
-
-    /**
-     * Delete the user's preferences.
-     *
-     * This method deletes the preferences for the authenticated user.
-     *
-     * @return \Illuminate\Http\JsonResponse A JSON response indicating the status of the deletion.
-     *
-     * @OA\Delete(
-     *     path="/api/preferences",
-     *     summary="Delete the user's preferences",
-     *     tags={"Preferences"},
-     *     security={{"sanctum": {}}},
-     *
-     *     @OA\Response(
-     *         response=200,
-     *         description="User preferences deleted successfully",
+     *         description="Preferences updated successfully",
      *
      *         @OA\JsonContent(
+     *             type="object",
      *
-     *             @OA\Property(property="message", type="string", example="Preferences deleted successfully")
+     *             @OA\Property(property="message", type="string")
      *         )
      *     ),
      *
      *     @OA\Response(
      *         response=401,
      *         description="Unauthorized"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Failed to update preferences"
      *     )
      * )
      */
-    public function destroy()
+    public function store(PreferencesRequest $request): JsonResponse
     {
+        $preferences = $request->validated()['preferences'];
         $user = Auth::user();
-        $user->preferences()->delete();
 
-        return response()->json(['message' => __('aggregator.preference.deleted')], 200);
+        DB::beginTransaction();
+        try {
+            // Remove all existing preferences for the user
+            Preference::where('user_id', $user->id)->delete();
+
+            foreach ($preferences as $preference) {
+                Preference::create([
+                    'user_id' => $user->id,
+                    'name' => $preference['name'],
+                    'value' => $preference['value'],
+                ]);
+            }
+            DB::commit();
+        } catch (Exception $exception) {
+            DB::rollBack();
+            Log::error($exception);
+
+            return response()->json(['error' => __('aggregator.preference.failed')], 500);
+        }
+
+        return response()->json(['message' => __('aggregator.preference.stored')]);
     }
 }

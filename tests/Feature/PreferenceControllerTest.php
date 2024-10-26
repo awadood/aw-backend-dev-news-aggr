@@ -14,59 +14,65 @@ class PreferenceControllerTest extends TestCase
     use RefreshDatabase;
 
     #[Test]
-    public function user_can_view_their_preferences()
+    public function can_retrieve_user_preferences(): void
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = User::factory()->create();
-        $preference = Preference::factory()->create(['user_id' => $user->id]);
+        Preference::factory()->create(['user_id' => $user->id, 'name' => 'category', 'value' => 'technology']);
+        Preference::factory()->create(['user_id' => $user->id, 'name' => 'source', 'value' => 'TechCrunch']);
 
-        // Act
-        $response = $this->actingAs($user, 'sanctum')->getJson(route(RouteNames::PREF_SHOW));
-
-        // Assert
-        $response->assertStatus(200)
-            ->assertJsonFragment([
-                'categories' => $preference->categories,
-                'sources' => $preference->sources,
-                'authors' => $preference->authors,
-            ]);
+        $this->actingAs($user, 'sanctum')
+            ->getJson(route(RouteNames::PREF_SHOW))
+            ->assertStatus(200)
+            ->assertJson([['name' => 'category', 'value' => 'technology'], ['name' => 'source', 'value' => 'TechCrunch']]);
     }
 
     #[Test]
-    public function user_can_update_their_preferences()
+    public function can_store_user_preferences(): void
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = User::factory()->create();
-        $newPreferences = [
-            'categories' => 'Technology, Health',
-            'sources' => 'BBC, CNN',
-            'authors' => 'John Doe, Jane Smith',
+        $preferences = [
+            ['name' => 'category', 'value' => 'business'],
+            ['name' => 'source', 'value' => 'BBC News'],
         ];
 
-        // Act
-        $response = $this->actingAs($user, 'sanctum')->postJson(route(RouteNames::PREF_STORE), $newPreferences);
+        $this->actingAs($user, 'sanctum')
+            ->postJson(route(RouteNames::PREF_STORE), ['preferences' => $preferences])
+            ->assertStatus(200)
+            ->assertJson(['message' => __('aggregator.preference.stored')]);
 
-        // Assert
-        $response->assertStatus(200)
-            ->assertJsonFragment($newPreferences);
+        $this->assertDatabaseHas('preferences', [
+            'user_id' => $user->id,
+            'name' => 'category',
+            'value' => 'business',
+        ]);
 
-        $this->assertDatabaseHas('preferences', array_merge($newPreferences, ['user_id' => $user->id]));
+        $this->assertDatabaseHas('preferences', [
+            'user_id' => $user->id,
+            'name' => 'source',
+            'value' => 'BBC News',
+        ]);
     }
 
     #[Test]
-    public function user_can_delete_their_preferences()
+    public function cannot_retrieve_preferences_when_not_authenticated(): void
     {
-        /** @var \App\Models\User $user */
-        $user = User::factory()->create();
-        $preference = Preference::factory()->create(['user_id' => $user->id]);
+        $this->getJson(route(RouteNames::PREF_SHOW))
+            ->assertStatus(401)
+            ->assertJson(['message' => 'Unauthenticated.']);
+    }
 
-        // Act
-        $response = $this->actingAs($user, 'sanctum')->deleteJson('/api/preferences');
+    #[Test]
+    public function cannot_store_preferences_when_not_authenticated(): void
+    {
+        $preferences = [
+            ['name' => 'category', 'value' => 'business'],
+            ['name' => 'source', 'value' => 'BBC News'],
+        ];
 
-        // Assert
-        $response->assertStatus(200)
-            ->assertJson(['message' => __('aggregator.preference.deleted')]);
-
-        $this->assertDatabaseMissing('preferences', ['id' => $preference->id]);
+        $this->postJson(route(RouteNames::PREF_SHOW), ['preferences' => $preferences])
+            ->assertStatus(401)
+            ->assertJson(['message' => 'Unauthenticated.']);
     }
 }

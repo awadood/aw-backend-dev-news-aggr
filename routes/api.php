@@ -45,6 +45,5 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/preferences', [PreferenceController::class, 'index'])->name(RouteNames::PREF_SHOW);
-    Route::post('/preferences', [PreferenceController::class, 'storeOrUpdate'])->name(RouteNames::PREF_STORE);
-    Route::delete('/preferences', [PreferenceController::class, 'destroy'])->name(RouteNames::PREF_DESTROY); //TODO deletable
+    Route::post('/preferences', [PreferenceController::class, 'store'])->name(RouteNames::PREF_STORE);
 });

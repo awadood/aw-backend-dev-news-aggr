@@ -14,7 +14,8 @@ return [
     'article' => [],
 
     'preference' => [
-        'deleted' => 'Preferences deleted successfully.',
+        'failed' => 'Failed to update preferences',
+        'stored' => 'Preferences updated successfully',
     ],
 
 ];
