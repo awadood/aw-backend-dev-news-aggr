@@ -3,6 +3,7 @@
 use App\Constants\RouteNames;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\FeedController;
 use App\Http\Controllers\PreferenceController;
 use Illuminate\Support\Facades\Route;
 
@@ -33,7 +34,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/articles/{id}', [ArticleController::class, 'destroy'])->name(RouteNames::ARTICLE_DESTROY);
 
     Route::get('/update-articles', [ArticleController::class, 'updateArticles'])->name(RouteNames::ARTICLE_SCHEDULAR);
-    Route::get('/personalized-feed', [ArticleController::class, 'personalizedFeed'])->name(RouteNames::ARTICLE_FEED);
+    Route::get('/personalized-feed', [FeedController::class, 'personalizedFeed'])->name(RouteNames::ARTICLE_FEED);
 });
 
 /*

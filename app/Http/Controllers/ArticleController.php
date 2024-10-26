@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Article;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 /**
  * Class ArticleController
@@ -276,95 +275,5 @@ class ArticleController extends Controller
         $article->delete();
 
         return response()->json(['message' => 'Article deleted successfully'], 200);
-    }
-
-    /**
-     * Update articles from external APIs.
-     *
-     * This method fetches articles from external sources and updates the database.
-     * It can be triggered manually or by a scheduler to ensure the articles are up-to-date.
-     *
-     * @return \Illuminate\Http\JsonResponse A JSON response indicating the status of the update operation.
-     *
-     * @OA\Get(
-     *     path="/api/update-articles",
-     *     summary="Update articles from external sources",
-     *     tags={"Articles"},
-     *     security={{"sanctum": {}}},
-     *
-     *     @OA\Response(
-     *         response=200,
-     *         description="Articles updated successfully",
-     *
-     *         @OA\JsonContent(
-     *
-     *             @OA\Property(property="message", type="string", example="Articles updated successfully")
-     *         )
-     *     ),
-     *
-     *     @OA\Response(
-     *         response=500,
-     *         description="Failed to update articles"
-     *     )
-     * )
-     */
-    public function updateArticles()
-    {
-        try {
-            // Assuming there is logic here to fetch articles from external APIs
-            // Example: ArticleService::updateFromExternalSources();
-
-            return response()->json(['message' => 'Articles updated successfully'], 200);
-        } catch (\Exception $e) {
-            return response()->json(['message' => 'Failed to update articles'], 500);
-        }
-    }
-
-    /**
-     * Provide a personalized feed of articles for the authenticated user.
-     *
-     * This method retrieves articles based on the user's preferences, including categories, sources, and authors.
-     *
-     * @return \Illuminate\Http\JsonResponse A JSON response containing a list of personalized articles.
-     *
-     * @OA\Get(
-     *     path="/api/personalized-feed",
-     *     summary="Get a personalized feed of articles",
-     *     tags={"Articles"},
-     *     security={{"sanctum": {}}},
-     *
-     *     @OA\Response(
-     *         response=200,
-     *         description="Personalized feed retrieved successfully",
-     *
-     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Article"))
-     *     ),
-     *
-     *     @OA\Response(
-     *         response=401,
-     *         description="Unauthorized"
-     *     )
-     * )
-     */
-    public function personalizedFeed()
-    {
-        $user = Auth::user();
-        $preferences = $user->preference;
-
-        $query = Article::query();
-
-        if ($preferences->categories) {
-            $query->whereIn('category', explode(', ', $preferences->categories));
-        }
-        if ($preferences->sources) {
-            $query->whereIn('source', explode(', ', $preferences->sources));
-        }
-        if ($preferences->authors) {
-            $query->whereIn('author', explode(', ', $preferences->authors));
-        }
-
-        $articles = $query->paginate(10);
-
-        return response()->json($articles, 200);
     }
 }
