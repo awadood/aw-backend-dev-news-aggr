@@ -10,20 +10,14 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
 /**
- * @OA\Schema(
- *     schema="NYTimesFetcher",
- *     type="object",
- *     title="NYTimesFetcher",
- *     description="Service to fetch articles from New York Times",
- * )
+ * Class NYTimesFetcher
+ *
+ * This class fetches articles from NewsAPI and transforms them into a uniform
+ * format. It implements the ArticleFetcher interface, ensuring consistency in
+ * how articles are retrieved and structured across different sources.
  */
 class NYTimesFetcher implements ArticleFetcher
 {
-    /**
-     * Timeout for invoking the New York Times API.
-     */
-    private const TIMEOUT = 10;
-
     /**
      * The API endpoint to fetch news articles from New York Times API.
      */
@@ -37,14 +31,20 @@ class NYTimesFetcher implements ArticleFetcher
     ];
 
     /**
-     * Fetch and transform news articles from New York Times API.
+     * Fetch and transform news articles from New York Times.
      *
-     * @return iterable an array containing data for article and its attributes.
+     * This method sends an HTTP request to New York Times, retrieves the articles,
+     * and transforms them into a consistent structure that includes the article's
+     * title, URL, description, and related attributes such as author and source.
+     *
+     * @return iterable An iterable collection of transformed articles.
+     *
+     * @throws FetchFailedException if there is an error while fetching data from New York Times.
      */
     public function fetchAndTransform(): iterable
     {
         try {
-            $response = Http::timeout(static::TIMEOUT)->get($this->apiUrl, $this->queryParameters);
+            $response = Http::timeout(config('articles.timeout'))->get($this->apiUrl, $this->queryParameters);
 
             if ($response->successful()) {
                 $articles = $response->json()['response']['docs'];

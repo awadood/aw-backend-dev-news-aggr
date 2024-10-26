@@ -47,10 +47,22 @@ return [
     |
     | Defines the maximum number of articles to accumulate before saving them
     | to the database. Adjusting this value helps in optimizing memory usage
-    | and database performance.
+    | and database performance. However, it is not in use for now.
     |
     */
 
     'batch_size' => env('BATCH_SIZE', 100),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Timeout
+    |--------------------------------------------------------------------------
+    |
+    | Set the timeout for each call to the external data source. Adjusting this
+    | value helps in optimizing API calls.
+    |
+    */
+
+    'timeout' => env('TIMEOUT', 10),
 
 ];

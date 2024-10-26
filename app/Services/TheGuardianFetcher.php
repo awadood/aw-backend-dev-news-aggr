@@ -9,20 +9,14 @@ use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 
 /**
- * @OA\Schema(
- *     schema="TheGuardianFetcher",
- *     type="object",
- *     title="TheGuardianFetcher",
- *     description="Service to fetch articles from The Guardian",
- * )
+ * Class TheGuardianFetcher
+ *
+ * This class fetches articles from The Guardian and transforms them into a uniform
+ * format. It implements the ArticleFetcher interface, ensuring consistency in
+ * how articles are retrieved and structured across different sources.
  */
 class TheGuardianFetcher implements ArticleFetcher
 {
-    /**
-     * Timeout for invoking the New York Times API.
-     */
-    private const TIMEOUT = 10;
-
     /**
      * The API endpoint to fetch news articles from The Guardian API.
      */
@@ -36,14 +30,20 @@ class TheGuardianFetcher implements ArticleFetcher
     ];
 
     /**
-     * Fetch and transform news articles from The Guardian API.
+     * Fetch and transform news articles from The Guardian.
      *
-     * @return iterable an array containing data for article and its attributes.
+     * This method sends an HTTP request to The Guardian, retrieves the articles,
+     * and transforms them into a consistent structure that includes the article's
+     * title, URL, description, and related attributes such as author and source.
+     *
+     * @return iterable An iterable collection of transformed articles.
+     *
+     * @throws FetchFailedException if there is an error while fetching data from The Guardian.
      */
     public function fetchAndTransform(): iterable
     {
         try {
-            $response = Http::timeout(static::TIMEOUT)->get($this->apiUrl, $this->queryParameters);
+            $response = Http::timeout(config('articles.timeout'))->get($this->apiUrl, $this->queryParameters);
 
             if ($response->successful()) {
                 $articles = $response->json()['response']['results'];
