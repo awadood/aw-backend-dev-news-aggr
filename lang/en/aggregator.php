@@ -11,7 +11,9 @@ return [
     |
     */
 
-    'article' => [],
+    'article' => [
+        'not_found' => 'Article not found',
+    ],
 
     'preference' => [
         'failed' => 'Failed to update preferences',

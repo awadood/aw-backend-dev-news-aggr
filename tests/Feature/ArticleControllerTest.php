@@ -102,12 +102,15 @@ class ArticleControllerTest extends TestCase
         $user = User::factory()->create();
         $this->actingAs($user, 'sanctum');
         $article = Article::factory()->create(['title' => 'Breaking News']);
-        Attribute::factory()->create(['article_id' => $article->id, 'name' => 'category', 'value' => 'general']);
+        $attribute = Attribute::factory()->create(['article_id' => $article->id, 'name' => 'category', 'value' => 'general']);
 
         $response = $this->getJson(route(RouteNames::ARTICLE_SHOW, $article->id));
 
         $response->assertStatus(200)
             ->assertJsonFragment(['title' => 'Breaking News']);
+
+        $this->assertInstanceOf(Article::class, $attribute->article);
+        $this->assertEquals($article->id, $attribute->article->id);
     }
 
     #[Test]
@@ -119,6 +122,6 @@ class ArticleControllerTest extends TestCase
         $response = $this->getJson(route(RouteNames::ARTICLE_SHOW, '999'));
 
         $response->assertStatus(404)
-            ->assertJson(['error' => 'Article not found.']);
+            ->assertJson(['error' => __('aggregator.article.not_found')]);
     }
 }

@@ -121,7 +121,7 @@ class ArticleController extends Controller
         }
 
         $articles = $query->paginate(config('articles.page_size'))
-            ->through(fn(Article $article, int $key) => fractal($article, new ArticleTransformer)->toArray());
+            ->through(fn (Article $article, int $key) => fractal($article, new ArticleTransformer)->toArray());
 
         return response()->json($articles);
     }
@@ -166,7 +166,7 @@ class ArticleController extends Controller
         $article = Article::with('attributes')->find($id);
 
         if (! $article) {
-            return response()->json(['error' => 'Article not found.'], 404);
+            return response()->json(['error' => __('aggregator.article.not_found')], 404);
         }
 
         return response()->json(fractal($article, new ArticleTransformer));
