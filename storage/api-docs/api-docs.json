@@ -1,0 +1,632 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "News Aggregator API",
+        "description": "API documentation for the challenge is to build a RESTful API for a news aggregator service that pulls articles from  various sources and provides endpoints for a frontend application to consume",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/articles": {
+            "get": {
+                "tags": [
+                    "Articles"
+                ],
+                "summary": "Fetch paginated articles",
+                "description": "Retrieve a paginated list of articles with optional search filters for keyword, date, category, and source.",
+                "operationId": "getArticles",
+                "parameters": [
+                    {
+                        "name": "keyword",
+                        "in": "query",
+                        "description": "Filter articles by keyword in the attributes",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "date",
+                        "in": "query",
+                        "description": "Filter articles by date (YYYY-MM-DD)",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "category",
+                        "in": "query",
+                        "description": "Filter articles by category",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "source",
+                        "in": "query",
+                        "description": "Filter articles by source",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number for pagination",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response with paginated articles",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Article"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "429": {
+                        "description": "Too Many Requests - Rate limit exceeded"
+                    }
+                }
+            }
+        },
+        "/api/articles/{id}": {
+            "get": {
+                "tags": [
+                    "Articles"
+                ],
+                "summary": "Get single article details",
+                "description": "Retrieve the details of a specific article by its ID.",
+                "operationId": "getArticleById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the article to retrieve",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response with article details",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Article"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Article not found"
+                    },
+                    "429": {
+                        "description": "Too Many Requests - Rate limit exceeded"
+                    }
+                }
+            }
+        },
+        "/api/register": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Register a new user",
+                "description": "Register a new user.\n\nThis method handles the registration of a new user by validating the input data,\ncreating a user record, and generating an authentication token.",
+                "operationId": "8a56853624e025573120a09a4c75d468",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john.doe@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password1234"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password1234"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "User successfully registered",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "access_token": {
+                                            "type": "string"
+                                        },
+                                        "token_type": {
+                                            "type": "string",
+                                            "example": "Bearer"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                }
+            }
+        },
+        "/api/login": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Login an existing user",
+                "description": "Login an existing user.\n\nThis method handles user login by validating the credentials and generating\nan authentication token if successful.",
+                "operationId": "a3b306d14572d1f4bd6c064b3233e7b8",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john.doe@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password1234"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User successfully logged in",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "access_token": {
+                                            "type": "string"
+                                        },
+                                        "token_type": {
+                                            "type": "string",
+                                            "example": "Bearer"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                }
+            }
+        },
+        "/api/logout": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Logout the authenticated user",
+                "description": "Logout the authenticated user.\n\nThis method handles the logout process for an authenticated user by deleting\nthe user's current access token.",
+                "operationId": "fe8f3429cd6979b3b4517e186505f9f9",
+                "responses": {
+                    "200": {
+                        "description": "Successfully logged out",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Successfully logged out"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/password/reset": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Handle password reset request",
+                "description": "Handle password reset request.\n\nThis method handles the password reset process by sending a password reset link\nto the user's email address.",
+                "operationId": "5f9daa4e2d9a09acda465d6b8455a1cd",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john.doe@example.com"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Password reset link sent",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "We have emailed your password reset link!"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Error sending reset link"
+                    }
+                }
+            }
+        },
+        "/api/personalized-feed": {
+            "get": {
+                "tags": [
+                    "Personalized Feed"
+                ],
+                "summary": "Get personalized news feed",
+                "description": "Fetch a personalized news feed based on user preferences, including categories, sources, and authors.",
+                "operationId": "getPersonalizedFeed",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "Bearer token for authentication",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response with personalized articles",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Article"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "429": {
+                        "description": "Too Many Requests - Rate limit exceeded"
+                    }
+                }
+            }
+        },
+        "/api/preferences": {
+            "get": {
+                "tags": [
+                    "Preferences"
+                ],
+                "summary": "Get user preferences",
+                "description": "Retrieve user preferences for news sources, categories, and authors.",
+                "operationId": "indexUserPreferences",
+                "responses": {
+                    "200": {
+                        "description": "Successful response with user preferences",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "name": {
+                                                "type": "string"
+                                            },
+                                            "value": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "429": {
+                        "description": "Too Many Requests - Rate limit exceeded"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Preferences"
+                ],
+                "summary": "Store user preferences",
+                "description": "Create or update user preferences for user preferences",
+                "operationId": "storeUserPreferences",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "preferences": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "value": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Preferences updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Failed to update preferences"
+                    },
+                    "429": {
+                        "description": "Too Many Requests - Rate limit exceeded"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "FetchFailedException": {
+                "title": "FetchFailedException",
+                "description": "Exception thrown when there is an error fetching data from NewsAPI",
+                "type": "object"
+            },
+            "Article": {
+                "title": "Article",
+                "description": "Article model",
+                "required": [
+                    "title",
+                    "url"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "The unique identifier of the article",
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "hash": {
+                        "description": "a unique hash is generated by the system for each article",
+                        "type": "string"
+                    },
+                    "title": {
+                        "description": "The title of the article",
+                        "type": "string"
+                    },
+                    "url": {
+                        "description": "The URL of the article",
+                        "type": "string"
+                    },
+                    "description": {
+                        "description": "The brief description or excerpt of the article",
+                        "type": "string"
+                    },
+                    "created_at": {
+                        "description": "The creation timestamp of the article",
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updated_at": {
+                        "description": "The update timestamp of the article",
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    }
+                },
+                "type": "object"
+            },
+            "Attribute": {
+                "title": "Attribute",
+                "description": "Attribute model",
+                "required": [
+                    "article_id",
+                    "name",
+                    "value"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "The unique identifier of the attribute",
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "article_id": {
+                        "description": "The ID of the related article",
+                        "type": "integer"
+                    },
+                    "name": {
+                        "description": "The name of the attribute",
+                        "type": "string"
+                    },
+                    "value": {
+                        "description": "The value of the attribute",
+                        "type": "string"
+                    },
+                    "created_at": {
+                        "description": "The creation timestamp of the attribute",
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updated_at": {
+                        "description": "The update timestamp of the attribute",
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    }
+                },
+                "type": "object"
+            },
+            "Preference": {
+                "title": "Preference",
+                "description": "Preference model",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "user_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "category, source, author"
+                    },
+                    "value": {
+                        "type": "string",
+                        "example": "business, CNBC, Fred Imbert"
+                    }
+                },
+                "type": "object",
+                "xml": {
+                    "name": "Preference"
+                }
+            },
+            "User": {
+                "title": "User",
+                "description": "User model",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "John Doe"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "john.doe@example.com"
+                    },
+                    "password": {
+                        "type": "string",
+                        "format": "password",
+                        "example": "password1234"
+                    }
+                },
+                "type": "object",
+                "xml": {
+                    "name": "User"
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Articles",
+            "description": "Articles"
+        },
+        {
+            "name": "Authentication",
+            "description": "Authentication"
+        },
+        {
+            "name": "Personalized Feed",
+            "description": "Personalized Feed"
+        },
+        {
+            "name": "Preferences",
+            "description": "Preferences"
+        }
+    ]
+}
