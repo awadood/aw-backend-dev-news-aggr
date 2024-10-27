@@ -79,13 +79,13 @@ class FeedController extends Controller
         }
 
         if (! empty($sources)) {
-            $articlesQuery->whereHas('attributes', function ($query) use ($sources) {
+            $articlesQuery->orWhereHas('attributes', function ($query) use ($sources) {
                 $query->where('name', 'source')->whereIn('value', $sources);
             });
         }
 
         if (! empty($authors)) {
-            $articlesQuery->whereHas('attributes', function ($query) use ($authors) {
+            $articlesQuery->orWhereHas('attributes', function ($query) use ($authors) {
                 $query->where('name', 'author')->whereIn('value', $authors);
             });
         }
