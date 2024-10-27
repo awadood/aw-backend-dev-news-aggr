@@ -51,6 +51,10 @@ class FeedController extends Controller
      *     @OA\Response(
      *         response=401,
      *         description="Unauthorized"
+     *     ),
+     *     @OA\Response(
+     *         response=429,
+     *         description="Too Many Requests - Rate limit exceeded"
      *     )
      * )
      *

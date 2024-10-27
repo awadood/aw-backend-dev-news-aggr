@@ -52,6 +52,10 @@ class PreferenceController extends Controller
      *     @OA\Response(
      *         response=401,
      *         description="Unauthorized"
+     *     ),
+     *     @OA\Response(
+     *         response=429,
+     *         description="Too Many Requests - Rate limit exceeded"
      *     )
      * )
      */
@@ -114,6 +118,10 @@ class PreferenceController extends Controller
      *     @OA\Response(
      *         response=500,
      *         description="Failed to update preferences"
+     *     ),
+     *     @OA\Response(
+     *         response=429,
+     *         description="Too Many Requests - Rate limit exceeded"
      *     )
      * )
      */

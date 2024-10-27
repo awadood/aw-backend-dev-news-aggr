@@ -18,7 +18,7 @@ use Illuminate\Database\Eloquent\Model;
  *     @OA\Property(property="id", type="integer", example=1),
  *     @OA\Property(property="user_id", type="integer", example=1),
  *     @OA\Property(property="name", type="string", example="category, source, author"),
- *     @OA\Property(property="value", type="string", example="business, CNBC, Fred Imbert")\
+ *     @OA\Property(property="value", type="string", example="business, CNBC, Fred Imbert")
  * )
  */
 class Preference extends Model

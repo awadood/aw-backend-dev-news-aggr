@@ -84,6 +84,10 @@ class ArticleController extends Controller
      *     @OA\Response(
      *         response=401,
      *         description="Unauthorized"
+     *     ),
+     *     @OA\Response(
+     *         response=429,
+     *         description="Too Many Requests - Rate limit exceeded"
      *     )
      * )
      */
@@ -158,6 +162,10 @@ class ArticleController extends Controller
      *     @OA\Response(
      *         response=404,
      *         description="Article not found"
+     *     ),
+     *     @OA\Response(
+     *         response=429,
+     *         description="Too Many Requests - Rate limit exceeded"
      *     )
      * )
      */
