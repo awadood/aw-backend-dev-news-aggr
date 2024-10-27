@@ -1,0 +1,58 @@
+services:
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16
+    container_name: postgres_db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: innoscripta
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # Redis
+  redis:
+    image: redis:alpine
+    container_name: redis_cache
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  # PHP Service
+  laravel:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: aw_news_aggregator
+    volumes:
+      - .:/var/www/html
+    environment:
+      - DB_CONNECTION=pgsql
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_DATABASE=innoscripta
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+    depends_on:
+      - postgres
+    command: sh -c "sh /var/www/html/setup.sh && php-fpm"
+
+  # Nginx
+  nginx:
+    image: nginx:alpine
+    container_name: nginx_server
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - laravel
+
+volumes:
+  postgres_data:
+  redis_data:
