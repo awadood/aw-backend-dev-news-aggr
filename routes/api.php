@@ -26,11 +26,10 @@ Route::post('/password/reset', [AuthController::class, 'resetPassword'])->name(R
 |
 */
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', 'throttle:articles'])->group(function () {
     Route::get('/articles', [ArticleController::class, 'index'])->name(RouteNames::ARTICLE_INDEX);
     Route::get('/articles/{id}', [ArticleController::class, 'show'])->name(RouteNames::ARTICLE_SHOW);
 
-    Route::get('/update-articles', [ArticleController::class, 'updateArticles'])->name(RouteNames::ARTICLE_SCHEDULAR);
     Route::get('/personalized-feed', [FeedController::class, 'personalizedFeed'])->name(RouteNames::ARTICLE_FEED);
 });
 
@@ -41,7 +40,7 @@ Route::middleware('auth:sanctum')->group(function () {
 |
 */
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', 'throttle:preferences'])->group(function () {
     Route::get('/preferences', [PreferenceController::class, 'index'])->name(RouteNames::PREF_SHOW);
     Route::post('/preferences', [PreferenceController::class, 'store'])->name(RouteNames::PREF_STORE);
 });
