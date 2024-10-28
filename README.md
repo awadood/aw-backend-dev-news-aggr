@@ -1,66 +1,96 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# News Aggregator API - README
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Welcome to the News Aggregator API! This application aggregates news articles from various sources and offers a convenient API to search and filter through them. It is containerized using Docker.
 
-## About Laravel
+## Prerequisites
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+To run this project, you must have git, docker, and docker-compose installed on your machine:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+-   **Git** to clone the repository.
+-   **Docker and Docker Compose** to build containers
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Any recent versions of docker and docker-compose should work. However, their versions on my machine are:
 
-## Learning Laravel
+-   **Docker version** 27.2.0, build 3ab4256
+-   **Docker Compose version** v2.29.2-desktop.2
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Quick Start Guide
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+1. **Clone the Repository**
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+    Start by cloning the Git repository into a new directory:
 
-## Laravel Sponsors
+    ```sh
+    mkdir aw-news-aggregator-api
+    cd aw-news-aggregator-api
+    git clone https://github.com/awadood/aw-backend-dev-news-aggr.git .
+    ```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+2. **Run Docker Compose**
 
-### Premium Partners
+    Run the following command to build and start all services.
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+    ```sh
+    docker-compose up --build -d
+    ```
 
-## Contributing
+    This will set up the containers for:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+    - **aw_news_aggregator**: Running the Laravel backend.
+    - **nginx_server**: Serving as the web server.
+    - **postgres_db**: Storing the application data.
+    - **redis_cache**: For caching.
 
-## Code of Conduct
+3. **Access the Application**
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+    After the services are up and running, you can access the application by navigating to:
 
-## Security Vulnerabilities
+    - [http://localhost:8080](http://localhost:8080) - This URL will be served by Nginx and the landing page will help you to view the **Documentation** and **Code Coverage Report** as shown in screenshots.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+4. **Stopping the Containers**
 
-## License
+    To stop and remove the running containers, use the following command:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+    ```sh
+    docker-compose down
+    ```
+
+    This command will stop all running services and remove the containers. Data in PostgreSQL and Redis will be persistent across runs due to the use of Docker volumes.
+
+## Screenshots
+
+![Homepage](./public/homepage.png)
+
+![API Documentation](./public/documentation.png)
+
+![Code Coverage](./public/code-coverage.png)
+
+## Important Configuration Files
+
+1. **articles.php**: This configuration file manages article-related settings, such as the number of articles to fetch, cron expressions, and caching options.
+
+2. **fractal.php**: This configuration file handles the transformer settings for the application, defining how different data types and models are transformed before being returned by the API.
+
+## Highlights
+
+This application is designed to showcase my various expertise in developing efficient, modular, and scalable solutions. Here are some of the highlights that make this project stand out:
+
+1. **Optimized Database Schema with Attributes Table**: The schema leverages a flexible design where attributes of articles are stored in a separate table, making it easy to filter articles based on dynamic characteristics. This design also offers scalability and allows easy addition of new attributes without altering the core schema, making it highly extensible.
+
+2. **Pipeline Design for Fetching Articles**: I implemented a pipeline design pattern to fetch, transform, and store articles. This modular pipeline structure allows for easy extension as new data sources are integrated and makes the solution easy to maintain and providing clear separation of responsibilities. The fetcher classes themselves are designed to be easily configurable, making it straightforward to add, modify, or remove data sources.
+
+3. **Optimized Insertion of Articles into Database**: I used a combination of hash checks and caching to ensure that duplicate articles are not inserted, significantly optimizing the insertion process, reducing redundancy, and ensuring the accuracy.
+
+4. **Exception Handling**: I added a custom exception (`FetchFailedException`) for better error reporting, and rendering.
+
+5. **Redis Caching**: I used Redis for caching to prevent duplicate API requests to external news services, reducing unnecessary data traffic and speeding up responses.
+
+6. **Comprehensive API Documentation**: I added Swagger-based documentation for all endpoints, along with the standard code comments and non-documentational comments. This combination enables smooth onboarding for developers and ensures the documentation stays up-to-date with the implementation.
+
+7. **Code Coverage Reports**: I included automated test coverage with reports that show which parts of the codebase are covered by tests.
+
+8. **CSS and Asset Configuration in Docker**: I debugged and resolved issues with serving CSS and assets through Nginx, ensuring the coverage report and other assets display correctly.
+
+## Contact
+
+If you have any questions or run into any issues, you can reach me at **[awadoodraj@hotmail.com](mailto:awadoodraj@hotmail.com)** or **+49 151 5789 7159**.
