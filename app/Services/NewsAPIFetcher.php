@@ -46,32 +46,30 @@ class NewsAPIFetcher implements ArticleFetcher
     {
         try {
             $response = Http::timeout(config('articles.timeout'))->get($this->apiUrl, $this->queryParameters);
-
-            if ($response->successful()) {
-                $articles = $response->json()['articles'];
-
-                foreach ($articles as $article) {
-                    $modelData = [
-                        'title' => $article['title'],
-                        'url' => $article['url'],
-                        'description' => $article['description'],
-                        'attributes' => [
-                            ['name' => 'date', 'value' => Carbon::parse($article['publishedAt'])->toDateTimeString()],
-                            ['name' => 'category', 'value' => 'business'],
-                            ['name' => 'source', 'value' => $article['source']['name']],
-                            ['name' => 'author', 'value' => $article['author']],
-                        ],
-                    ];
-
-                    // Exclude all the attributes if the value is null.
-                    $modelData['attributes'] = collect($modelData['attributes'])
-                        ->filter(fn (array $attrib) => $attrib['value'] != null)
-                        ->all();
-
-                    yield $modelData;
-                }
-            } else {
+            if (! $response->successful()) {
                 throw new FetchFailedException('Failed to fetch data from NewsAPI: '.$response->body());
+            }
+
+            $articles = $response->json()['articles'];
+            foreach ($articles as $article) {
+                $modelData = [
+                    'title' => $article['title'],
+                    'url' => $article['url'],
+                    'description' => $article['description'],
+                    'attributes' => [
+                        ['name' => 'date', 'value' => Carbon::parse($article['publishedAt'])->toDateTimeString()],
+                        ['name' => 'category', 'value' => 'business'],
+                        ['name' => 'source', 'value' => $article['source']['name']],
+                        ['name' => 'author', 'value' => $article['author']],
+                    ],
+                ];
+
+                // Exclude all the attributes if the value is null.
+                $modelData['attributes'] = collect($modelData['attributes'])
+                    ->filter(fn (array $attrib) => $attrib['value'] != null)
+                    ->all();
+
+                yield $modelData;
             }
         } catch (RequestException $e) {
             throw new FetchFailedException('Network error occurred while fetching data from NewsAPI: '.$e->getMessage());

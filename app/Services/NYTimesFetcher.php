@@ -45,32 +45,30 @@ class NYTimesFetcher implements ArticleFetcher
     {
         try {
             $response = Http::timeout(config('articles.timeout'))->get($this->apiUrl, $this->queryParameters);
-
-            if ($response->successful()) {
-                $articles = $response->json()['response']['docs'];
-
-                foreach ($articles as $article) {
-                    $modelData = [
-                        'title' => $article['headline']['main'],
-                        'url' => $article['web_url'],
-                        'description' => $article['lead_paragraph'],
-                        'attributes' => [
-                            ['name' => 'date', 'value' => Carbon::parse($article['pub_date'])->toDateTimeString()],
-                            ['name' => 'category', 'value' => $article['section_name']],
-                            ['name' => 'source', 'value' => $article['source']],
-                            ['name' => 'author', 'value' => Str::replaceFirst('By ', '', $article['byline']['original'])],
-                        ],
-                    ];
-
-                    // Exclude all the attributes if the value is null.
-                    $modelData['attributes'] = collect($modelData['attributes'])
-                        ->filter(fn (array $attrib) => $attrib['value'] != null)
-                        ->all();
-
-                    yield $modelData;
-                }
-            } else {
+            if (! $response->successful()) {
                 throw new FetchFailedException('Failed to fetch data from NewsAPI: '.$response->body());
+            }
+
+            $articles = $response->json()['response']['docs'];
+            foreach ($articles as $article) {
+                $modelData = [
+                    'title' => $article['headline']['main'],
+                    'url' => $article['web_url'],
+                    'description' => $article['lead_paragraph'],
+                    'attributes' => [
+                        ['name' => 'date', 'value' => Carbon::parse($article['pub_date'])->toDateTimeString()],
+                        ['name' => 'category', 'value' => $article['section_name']],
+                        ['name' => 'source', 'value' => $article['source']],
+                        ['name' => 'author', 'value' => Str::replaceFirst('By ', '', $article['byline']['original'])],
+                    ],
+                ];
+
+                // Exclude all the attributes if the value is null.
+                $modelData['attributes'] = collect($modelData['attributes'])
+                    ->filter(fn (array $attrib) => $attrib['value'] != null)
+                    ->all();
+
+                yield $modelData;
             }
         } catch (RequestException $e) {
             throw new FetchFailedException('Network error occurred while fetching data from NewsAPI: '.$e->getMessage());
